@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>轮播图</title>
+    <style>
+        ul,li {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+        .box {
+            /*定位父级*/
+            position: relative;
+            width: 1000px;
+            height: 350px;
+            margin: 0 auto;
+        }
+
+        .box .slider {
+            width: 1000px;
+            height: 350px;
+            display: none;
+        }
+
+        .box .slider.active{
+            display: block;
+        }
+
+        .box .point-list {
+            position: absolute;
+            /*绝对定位的环境下的水平居中方式*/
+            left: 50%;
+            margin-left: -38px;
+            top: 310px;
+        }
+
+
+
+        .box .point-list .point {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            margin: 0 5px;
+            background-color: white;
+            border-radius: 100%;
+        }
+
+        .box .point-list .point.active {
+            background-color: black;
+        }
+
+        .box .point-list .point:hover {
+            cursor: pointer;
+        }
+
+
+        .skip {
+            position: absolute;
+            top: 140px;
+            display: inline-block;
+            width: 40px;
+            height: 80px;
+            text-align: center;
+            line-height: 80px;
+            background-color: lightgray;
+            color: white;
+            opacity: 0.2;
+            font-size: 36px;
+        }
+        .box .prev{
+            left: 0;
+        }
+
+        .box .next{
+            right: 0;
+        }
+
+        .box .skip:hover {
+            cursor: pointer;
+            opacity: 0.5;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+<div class="box">
+    <img src="images/banner1.jpg" alt="" data-index="1" class="slider active">
+    <img src="images/banner2.jpg" alt="" data-index="2" class="slider">
+    <img src="images/banner3.jpg" alt="" data-index="3" class="slider">
+
+    <div class="point-list">
+<!--        <span class="point active" data-index="1"></span>-->
+<!--        <span class="point" data-index="2"></span>-->
+<!--        <span class="point" data-index="3"></span>-->
+    </div>
+
+    <span class="skip prev">&lt;</span>
+    <span class="skip next">&gt;</span>
+
+</div>
+<script>
+        var imgs = document.images;
+        var imgArr =Array.prototype.slice.call(imgs,0);
+        var pointList = document.getElementsByClassName("point-list").item(0);
+         var box = document.getElementsByClassName('box').item(0);
+        imgArr.forEach(function(img,index){
+            var span = document.createElement("span");
+            if(index === 0 ){
+                span.classList.add("point","active");     
+            }
+            span.classList.add('point');
+            
+            span.dataset.index = img.dataset.index;
+            pointList.appendChild(span);
+        });
+    
+        var points = document.getElementsByClassName('point');
+        var pointArr = Array.prototype.slice.call(points,0);
+        
+        pointArr.forEach(function(point){
+            point.addEventListener('click',setImageActive,false);
+        });
+        
+        function setImageActive(ev){
+            imgArr.forEach(function(img){
+                if(img.dataset.index  === ev.target.dataset.index){
+                    imgArr.forEach(function(img){
+                        img.classList.remove('active'); 
+                    });
+                img.classList.add('active');
+                setPointActive(img.dataset.index);
+                }
+            }); 
+        }
+    function setPointActive(imgIndex){
+        pointArr.forEach(function(point){
+            point.classList.remove('active');
+        });
+        pointArr.forEach(function(point){
+           if(point.dataset.index  === imgIndex)
+               point.classList.add('active');
+        });
+    }
+    
+    var skip = document.getElementsByClassName("skip");
+    
+    skip.item(0).addEventListener('click',skipImg,false);
+    skip.item(1).addEventListener('click',skipImg,false);
+    
+    function skipImg(ev){
+        var currentImg =null;
+        imgArr.forEach(function(image){
+            if(image.classList.contains('active')){
+               currentImg = image;
+               }
+        });
+        
+        if(ev.target.classList.contains('prev')){
+            currentImg.classList.remove('active');
+            currentImg = currentImg.previousElementSibling;
+            
+            if(currentImg !== null && currentImg.nodeName === 'IMG'){
+                currentImg.classList.add('active');
+               }else{
+                currentImg = imgArr[imgArr.length - 1];
+                currentImg.classList.add('active');
+               }
+        }
+        if(ev.target.classList.contains('next')){
+            currentImg.classList.remove('active');
+            currentImg = currentImg.nextElementSibling;
+            
+            if(currentImg !== null && currentImg.nodeName === 'IMG'){
+                currentImg.classList.add('active');
+               }else{
+                currentImg = imgArr[0];
+                currentImg.classList.add('active');
+               }
+        }
+        setPointActive(currentImg.dataset.index);
+        
+    }
+    
+    var timer = null;
+    
+    box.addEventListener('mouseout',startTimer,false);
+    box.addEventListener('mouseover',clearTimer,false);
+    
+    function startTimer(){
+        var clickEvent = new Event('click');
+        timer = setInterval(function(){
+            skip.item(1).dispatchEvent(clickEvent);
+        },3000);
+    }
+    function clearTimer(){
+      clearInterval(timer);
+    }
+    
+    
+    
+    
+    
+    </script>
+<!--
+
+<script>
+    // 设置小圆点的数量与样式, 与图片的数量关联,实现每添加一张图, 小圆点数量自动更新
+    var imgs = document.images;
+    // 将图片列表由HTML集合转为真正的数组类型
+    var imgArr = Array.prototype.slice.call(imgs, 0);
+    // 获取小圆点的父节点
+    var pointList = document.getElementsByClassName('point-list').item(0);
+
+    imgArr.forEach(function (img, index) {
+        var span = document.createElement('span');
+        if (index === 0) {
+            span.classList.add('point','active')
+        }
+        span.classList.add('point');
+
+        span.dataset.index = img.dataset.index;
+
+        pointList.appendChild(span);
+    });
+
+    // 为小圆点设置点击事件,切换图片
+    // 获取所有的小圆点
+    var points = document.getElementsByClassName('point');
+    // 将小圆点的html集合, 转为真正的数组
+    var pointArr = Array.prototype.slice.call(points, 0);
+    // 循环给小圆点添加点击事件
+    pointArr.forEach(function (point){
+        point.addEventListener('click', setImgActive, false);
+    });
+
+    // 设置图片切换
+    function setImgActive(ev) {
+      imgArr.forEach(function (img) {
+          // 根据小圆点的data-index值与图片data-index对应关系来确定需要切换的图片
+          if (img.dataset.index === ev.target.dataset.index) {
+              // 去掉原来所有图片上的激活样式
+              imgArr.forEach(function (img) { img.classList.remove('active') });
+              // 设置当前图片为显示激活状态
+              img.classList.add('active');
+
+              // 设置小圆点的当前激活与高亮状态
+              setPointActive(img.dataset.index);
+          }
+      });
+    }
+
+    // 翻页跳转按钮
+    var skip = document.getElementsByClassName('skip');
+
+
+    // 为翻页按钮添加事件
+    skip.item(0).addEventListener('click', skipImg, false);
+    skip.item(1).addEventListener('click', skipImg, false);
+
+    function skipImg(ev) {
+        // 获取当前正在显示的图片
+        var currentImg = null;
+        imgArr.forEach(function (img) {
+            if (img.classList.contains('active')) {
+                currentImg = img;
+            }
+        });
+
+        // 判断点击的是显示前一个图片
+        if (ev.target.classList.contains('prev')) {
+            // 显示前一个兄弟元素节点
+            currentImg.classList.remove('active');
+            currentImg = currentImg.previousElementSibling;
+
+            if (currentImg !== null && currentImg.nodeName === 'IMG') {
+                // 高亮前一个兄弟节点图片
+                currentImg.classList.add('active');
+            } else {
+                // 如果不存在前一个兄弟节点,则显示最后一个,以此来循环显示
+                // 高亮最后一个兄弟节点图片
+                currentImg = imgArr[imgArr.length-1];
+                currentImg.classList.add('active');
+            }
+        }
+
+        // 判断是否是点击了显示后一个图片
+        if (ev.target.classList.contains('next')) {
+            // 移除当前图片高亮, 不要再显示
+            currentImg.classList.remove('active');
+            // 更新当前图片节点
+            currentImg = currentImg.nextElementSibling;
+
+            // 显示后一个兄弟元素节点
+            if (currentImg !== null && currentImg.nodeName === 'IMG') {
+                // 高亮前一个兄弟节点图片
+                currentImg.classList.add('active');
+            } else {
+                // 如果不存在前一个兄弟节点,则显示最后一个,以此来循环显示
+                // 高亮第一个兄弟节点图片, 索引为0
+                currentImg = imgArr[0];
+                currentImg.classList.add('active');
+            }
+        }
+
+        // 获取当前显示的图片的data-index
+        var imgIndex = currentImg.dataset.index;
+        setPointActive(imgIndex);
+    }
+
+    // 公共函数: 设置小圆点高亮
+    function setPointActive(imgIndex) {
+        // 清除小圆点原有的高亮
+        pointArr.forEach(function (point) { point.classList.remove('active') });
+        pointArr.forEach(function (point) {
+            if (point.dataset.index === imgIndex)
+                point.classList.add('active');
+        });
+    }
+
+
+    var box = document.getElementsByClassName('box').item(0);
+
+    // 创建定时器并初始化
+    var timer = null;
+
+    // 创建鼠标移动事件监听器
+    // 1. 当鼠标移出轮播图区域时, 启动定时器控制轮播图的播放
+    box.addEventListener('mouseout', startTimer, false);
+
+    // 2. 当鼠标移入到轮播图区域时, 清除定时器,由用户点击来控制轮播图的播放
+    box.addEventListener('mouseover',clearTimer, false);
+
+    function startTimer() {
+        // 事件模拟器
+        var clickEvent = new Event('click');
+        timer = setInterval(function () {
+            skip.item(1).dispatchEvent(clickEvent);
+        }, 3000);
+
+    }
+
+
+    function clearTimer() {
+        clearInterval(timer);
+    }
+
+
+</script>
+-->
+</body>
+</html>
